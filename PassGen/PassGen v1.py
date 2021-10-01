@@ -6,7 +6,12 @@ def symbols_pass():
 
 
 def generate_password():
-    symbols_pass()
+    pass
+
+
+def check_idiot():
+    pass
+
 
 
 if __name__ == '__main__':
