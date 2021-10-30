@@ -12,6 +12,8 @@ class App(QWidget):
         self.digits = '0123456789'
         self.alpha_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         self.alpha_lower = 'abcdefghijklmnopqrstuvwxyz'
+        self.symbols = '~!@#$%^&*(()<>{}[]№?'
+        self.special = 'IlO01'
         self.num = 8
         super().__init__()
         self.passgen = uic.loadUi('PassGen_Des01.ui')
@@ -25,18 +27,25 @@ class App(QWidget):
         self.passgen.btn_gen.clicked.connect(lambda: self.click())
 
     def click(self):
-        self.symbols_to_generate = ''
-        self.password = ''
+        symbols_to_generate = ''
+        password = ''
         if self.passgen.btn_123.isChecked():
-            self.symbols_to_generate += self.digits
+            symbols_to_generate += self.digits
         if self.passgen.btn_ABC.isChecked():
-            self.symbols_to_generate += self.alpha_upper
+            symbols_to_generate += self.alpha_upper
         if self.passgen.btn_abc.isChecked():
-            self.symbols_to_generate += self.alpha_lower
-
+            symbols_to_generate += self.alpha_lower
+        if self.passgen.btn_symbols.isChecked():
+            symbols_to_generate += self.symbols
+        if not self.passgen.btn_special.isChecked():
+            temp_sym_to_gen = ''
+            for c in symbols_to_generate:
+                if c not in self.special:
+                    temp_sym_to_gen += c
+            symbols_to_generate = temp_sym_to_gen
         for i in range(self.num):
-            self.password += choice(self.symbols_to_generate)
-        self.passgen.label.setText(self.password)
+            password += choice(symbols_to_generate)
+        self.passgen.label.setText(password)
 
 
 def main():
