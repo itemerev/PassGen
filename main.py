@@ -9,24 +9,24 @@ from PyQt5.QtWidgets import QApplication, QWidget
 
 class App(QWidget):
     def __init__(self):
+        super().__init__()
         self.digits = '0123456789'
         self.alpha_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         self.alpha_lower = 'abcdefghijklmnopqrstuvwxyz'
         self.symbols = '~!@#$%^&*(()<>{}[]№?'
         self.special = 'IlO01'
         self.num = 8
-        super().__init__()
         self.passgen = uic.loadUi('PassGen_Des01.ui')
         self.start()
-        self.set()
+        self.click()
 
     def start(self):
         self.passgen.show()
 
-    def set(self):
-        self.passgen.btn_gen.clicked.connect(lambda: self.click())
-
     def click(self):
+        self.passgen.btn_gen.clicked.connect(lambda: self.generate())
+
+    def generate(self):
         symbols_to_generate = ''
         password = ''
         if self.passgen.btn_123.isChecked():
@@ -43,9 +43,12 @@ class App(QWidget):
                 if c not in self.special:
                     temp_sym_to_gen += c
             symbols_to_generate = temp_sym_to_gen
-        for i in range(self.num):
-            password += choice(symbols_to_generate)
-        self.passgen.label.setText(password)
+        if symbols_to_generate:
+            for i in range(self.num):
+                password += choice(symbols_to_generate)
+            self.passgen.label.setText(password)
+        else:
+            self.passgen.label.setText('ВЫБЕРИТЕ СИМВОЛЫ!')
 
 
 def main():
