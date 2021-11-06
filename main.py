@@ -29,13 +29,15 @@ class App(QWidget):
         self.pass_gen.btn_enter.clicked.connect(lambda: self.set_num())
 
     def set_num(self):
-        self.num += 1
+        self.num = int(self.pass_gen.lineEdit.text())
         if self.num > 18:
+            self.num = 18
+        if self.num < 3:
             self.num = 3
         if self.num == 3 or self.num == 4:
-            self.pass_gen.label.setText(f'Длина {self.num} символа')
+            self.pass_gen.lineEdit.setText(f'Длина {self.num} символа')
         else:
-            self.pass_gen.label.setText(f'Длина {self.num} символов')
+            self.pass_gen.lineEdit.setText(f'Длина {self.num} символов')
 
     def generate(self):
         symbols_to_generate = ''
@@ -57,13 +59,16 @@ class App(QWidget):
         if symbols_to_generate:
             for i in range(self.num):
                 password += choice(symbols_to_generate)
-            self.pass_gen.label.setText(password)
+            self.pass_gen.lineEdit.setText(password)
+
+            # Копирование сгенерированного пароля в буфер обмена
             win32clipboard.OpenClipboard()
             win32clipboard.EmptyClipboard()
             win32clipboard.SetClipboardText(password)
             win32clipboard.CloseClipboard()
+
         else:
-            self.pass_gen.label.setText('ВЫБЕРИТЕ СИМВОЛЫ!')
+            self.pass_gen.lineEdit.setText('ВЫБЕРИТЕ СИМВОЛЫ!')
 
 
 def main():
