@@ -33,6 +33,29 @@ class App(QWidget):
         self.pass_gen.btn_enter.clicked.connect(lambda: self.set_num())
         self.pass_gen.btn_login.clicked.connect(lambda: self.set_login())
         self.pass_gen.btn_save.clicked.connect(lambda: self.save_password())
+        self.pass_gen.btn_find.clicked.connect(lambda: self.find_data())
+
+    def find_data(self):
+        data = self.pass_gen.lineEdit.text()
+        with open('results.txt', 'r', encoding='utf-8') as read_file:
+            name_password = ''
+            for row in read_file:
+                if row == '':
+                    continue
+                elif '    ' not in row:
+                    name_password = row[:-2]
+                    if data in row:
+                        self.pass_gen.label.setText(f'Значение "{data}" найдено, как имя для записи: {read_file.readline().strip()}')
+                        break
+                else:
+                    if data in row[12:13 + len(data)]:
+                        self.pass_gen.label.setText(f'Значение "{data}" найдено, как логин для записи {name_password}: {row[4:]}')
+                        break
+                    elif data in row[22 + len(data):]:
+                        self.pass_gen.label.setText(f'Значение "{data}" найдено, как пароль для записи {name_password}: {row[4:]}')
+                        break
+                    else:
+                        self.pass_gen.label.setText(f'Значение "{data}" не найдено в сохранённых паролях!')
 
     def save_password(self):
         name = self.pass_gen.lineEdit.text()
@@ -48,15 +71,18 @@ class App(QWidget):
         self.pass_gen.label.setText('Чтобы сохранить пароль, введите его имя и нажмите SAVE')
 
     def set_num(self):
-        self.num = int(self.pass_gen.lineEdit.text())
-        if self.num > 18:
-            self.num = 18
-        if self.num < 3:
-            self.num = 3
-        if self.num == 3 or self.num == 4:
-            self.pass_gen.label.setText(f'Длина пароля {self.num} символа')
+        if self.pass_gen.lineEdit.text().isdigit():  # Проверка, что введенный текст является числом
+            self.num = int(self.pass_gen.lineEdit.text())
+            if self.num > 18:
+                self.num = 18
+            if self.num < 3:
+                self.num = 3
+            if self.num == 3 or self.num == 4:
+                self.pass_gen.label.setText(f'Длина пароля {self.num} символа')
+            else:
+                self.pass_gen.label.setText(f'Длина пароля {self.num} символов')
         else:
-            self.pass_gen.label.setText(f'Длина пароля {self.num} символов')
+            self.pass_gen.label.setText('Введите число от 3-х до 18-ти!')
 
     def generate(self):
         symbols_to_generate = ''  # строка, содержащая все символы из которых будет генерироваться пароль
