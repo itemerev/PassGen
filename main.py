@@ -40,6 +40,7 @@ class App(QWidget):
         with open('results.txt', 'a', encoding='utf-8') as save_file:
             print(f'{name}:', file=save_file)
             print(f'    Логин - {self.login}: Пароль - {self.name_login_password.get(name).get(self.login)}', file=save_file)
+            print('', file=save_file)
 
     def set_login(self):
         self.login = self.pass_gen.lineEdit.text()
@@ -122,7 +123,7 @@ class App(QWidget):
                     self.password = self.password[1:] + choice('~!@#$%^&*(()+-<>{}[]№?')
 
             self.pass_gen.lineEdit.setText(self.password)  # Показать пароль в окне lineEdit
-            self.pass_gen.label.setText('Чтобы задать логин для пароля, введите логин и нажмите LOGIN')
+            self.pass_gen.label.setText(f'Чтобы задать логин для {self.password}, введите логин и нажмите LOGIN')
 
             # Копирование сгенерированного пароля в буфер обмена
             win32clipboard.OpenClipboard()
