@@ -17,6 +17,10 @@ class App(QWidget):
         self.symbols = '~!@#$%^&*(()+-<>{}[]№?'
         self.special = 'IlO01'
         self.num = 3
+        self.password = ''  # сгенерированный пароль (по-умолчанию пустая строка)
+        self.login = ''
+        self.login_password = {}
+        self.name_login_password = {}
         self.pass_gen = uic.loadUi('PassGen_Des01.ui')
         self.start()
         self.click()
@@ -27,6 +31,20 @@ class App(QWidget):
     def click(self):
         self.pass_gen.btn_gen.clicked.connect(lambda: self.generate())
         self.pass_gen.btn_enter.clicked.connect(lambda: self.set_num())
+        self.pass_gen.btn_login.clicked.connect(lambda: self.set_login())
+        self.pass_gen.btn_save.clicked.connect(lambda: self.save_password())
+
+    def save_password(self):
+        name = self.pass_gen.lineEdit.text()
+        self.name_login_password = {name: self.login_password}
+        with open('results.txt', 'a', encoding='utf-8') as save_file:
+            print(f'{name}:', file=save_file)
+            print(f'    Логин - {self.login}: Пароль - {self.name_login_password.get(name).get(self.login)}', file=save_file)
+
+    def set_login(self):
+        self.login = self.pass_gen.lineEdit.text()
+        self.login_password = {self.login: self.password}
+        self.pass_gen.label.setText('Чтобы сохранить пароль, введите его имя и нажмите SAVE')
 
     def set_num(self):
         self.num = int(self.pass_gen.lineEdit.text())
@@ -35,13 +53,12 @@ class App(QWidget):
         if self.num < 3:
             self.num = 3
         if self.num == 3 or self.num == 4:
-            self.pass_gen.lineEdit.setText(f'Длина {self.num} символа')
+            self.pass_gen.label.setText(f'Длина пароля {self.num} символа')
         else:
-            self.pass_gen.lineEdit.setText(f'Длина {self.num} символов')
+            self.pass_gen.label.setText(f'Длина пароля {self.num} символов')
 
     def generate(self):
         symbols_to_generate = ''  # строка, содержащая все символы из которых будет генерироваться пароль
-        password = ''  # сгенерированный пароль (по-умолчанию пустая строка)
         symbols_list = []
 
         # Проверка включенных кнопок для выбора символов пароля
@@ -66,53 +83,55 @@ class App(QWidget):
 
         # Если выбраны символы для генерации пароля, то пароль генерируется
         if symbols_to_generate:
+            self.password = ''
             for i in range(self.num):  # Генерируется пароль из заданного количества символов
-                password += choice(symbols_to_generate)
+                self.password += choice(symbols_to_generate)
 
             # Проверка включенных кнопок для обязательных символов (+)
             if self.pass_gen.btn_add_123.isChecked():
                 temp = False
-                for c in password:
+                for c in self.password:
                     if c in self.digits:
                         temp = True
                         break
                 if not temp:
-                    password = password[1:] + str(randrange(2, 9))
+                    self.password = self.password[1:] + str(randrange(2, 9))
             if self.pass_gen.btn_add_ABC.isChecked():
                 temp = False
-                for c in password:
+                for c in self.password:
                     if c in self.alpha_upper:
                         temp = True
                         break
                 if not temp:
-                    password = password[1:] + choice('ABCDEFGHJKLMNPRSTUVWXYZ')
+                    self.password = self.password[1:] + choice('ABCDEFGHJKLMNPRSTUVWXYZ')
             if self.pass_gen.btn_add_abc.isChecked():
                 temp = False
-                for c in password:
+                for c in self.password:
                     if c in self.alpha_lower:
                         temp = True
                         break
                 if not temp:
-                    password = password[1:] + choice('abcdefghijkmnopqrstuvwxyz')
+                    self.password = self.password[1:] + choice('abcdefghijkmnopqrstuvwxyz')
             if self.pass_gen.btn_add_symbols.isChecked():
                 temp = False
-                for c in password:
+                for c in self.password:
                     if c in self.symbols:
                         temp = True
                         break
                 if not temp:
-                    password = password[1:] + choice('~!@#$%^&*(()+-<>{}[]№?')
+                    self.password = self.password[1:] + choice('~!@#$%^&*(()+-<>{}[]№?')
 
-            self.pass_gen.lineEdit.setText(password)  # Показать пароль в окне lineEdit
+            self.pass_gen.lineEdit.setText(self.password)  # Показать пароль в окне lineEdit
+            self.pass_gen.label.setText('Чтобы задать логин для пароля, введите логин и нажмите LOGIN')
 
             # Копирование сгенерированного пароля в буфер обмена
             win32clipboard.OpenClipboard()
             win32clipboard.EmptyClipboard()
-            win32clipboard.SetClipboardText(password)
+            win32clipboard.SetClipboardText(self.password)
             win32clipboard.CloseClipboard()
 
         else:
-            self.pass_gen.lineEdit.setText('ВЫБЕРИТЕ СИМВОЛЫ!')
+            self.pass_gen.label.setText('ВЫБЕРИТЕ СИМВОЛЫ!')
 
 
 def main():
