@@ -16,6 +16,8 @@ class App(QWidget):
         self.alpha_lower = 'abcdefghijklmnopqrstuvwxyz'
         self.symbols = '~!@#$%^&*(()+-<>{}[]№?'
         self.special = 'IlO01'
+        self.data = ''
+        self.answer_list = []
         self.num = 3
         self.password = ''  # сгенерированный пароль (по-умолчанию пустая строка)
         self.login = ''
@@ -36,26 +38,30 @@ class App(QWidget):
         self.pass_gen.btn_find.clicked.connect(lambda: self.find_data())
 
     def find_data(self):
-        data = self.pass_gen.lineEdit.text()
-        with open('results.txt', 'r', encoding='utf-8') as read_file:
-            name_password = ''
-            for row in read_file:
-                if row == '':
-                    continue
-                elif '    ' not in row:
-                    name_password = row[:-2]
-                    if data in row:
-                        self.pass_gen.label.setText(f'Значение "{data}" найдено, как имя для записи: {read_file.readline().strip()}')
-                        break
-                else:
-                    if data in row[12:13 + len(data)]:
-                        self.pass_gen.label.setText(f'Значение "{data}" найдено, как логин для записи {name_password}: {row[4:]}')
-                        break
-                    elif data in row[22 + len(data):]:
-                        self.pass_gen.label.setText(f'Значение "{data}" найдено, как пароль для записи {name_password}: {row[4:]}')
-                        break
+        request = self.pass_gen.lineEdit.text()
+
+        if self.data != request:
+            with open('results.txt', 'r', encoding='utf-8') as read_file:
+                name_password = ''
+                for row in read_file:
+                    if row == '':
+                        continue
+                    elif '    ' not in row:
+                        name_password = row[:-2]
+                        if request in row:
+                            self.answer_list.append(f'Значение "{request}" найдено, как имя для записи: {read_file.readline().strip()}')
                     else:
-                        self.pass_gen.label.setText(f'Значение "{data}" не найдено в сохранённых паролях!')
+                        if request in row[12:13 + len(request)]:
+                            self.answer_list.append(f'Значение "{request}" найдено, как логин для записи {name_password}: {row[4:]}')
+                        elif request in row[22 + len(request):]:
+                            self.answer_list.append(f'Значение "{request}" найдено, как пароль для записи {name_password}: {row[4:]}')
+            self.data = self.pass_gen.lineEdit.text()
+
+        if len(self.answer_list) > 0:
+            self.pass_gen.label.setText(self.answer_list.pop())
+        else:
+            self.pass_gen.label.setText(f'Значение "{request}" не найдено в сохранённых паролях!')
+            self.data = ''
 
     def save_password(self):
         name = self.pass_gen.lineEdit.text()
