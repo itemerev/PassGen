@@ -51,7 +51,7 @@ class App(QWidget):
         
         request = self.pass_gen.lineEdit.text()  # Сохранение введенного запроса в переменную
         
-        # Если поиск запрашиваемого значения выполняется в первый раз, то все найденные результаты сохраняются в список ответов.
+        # Если поиск запрашиваемого значения выполняется в первый раз, то есть переменная self.data не ссылается на текущий запрос, то все найденные результаты сохраняются в список ответов.
         if self.data != request:
             with open('results.txt', 'r', encoding='utf-8') as read_file:
                 name_password = ''
@@ -73,7 +73,7 @@ class App(QWidget):
         if len(self.answer_list) > 0:
             self.pass_gen.label.setText(self.answer_list.pop())
         
-        # Если записей в списке ответов больше нет, это выводиться в строку подсказок, а поиск запрашиваемого значения обнуляется, то есть можно повторно сформировать список ответов
+        # Если записей в списке ответов больше нет (или не было), то в строку подсказок выводиться информация, что запрос не найден, а поиск запрашиваемого значения обнуляется, то есть можно повторно сформировать список ответов
         else:
             self.pass_gen.label.setText(f'Значение "{request}" не найдено в сохранённых паролях!')
             self.data = ''
@@ -81,7 +81,7 @@ class App(QWidget):
     def save_password(self):
         # Метод, сохраняющий под указанным имененем сгенерированный пароль вместе с логином в файл
         
-        # Имя считывается из введенной строки и сохраняется в словарь в качестве ключа к словарю логин: пароль
+        # Введенное имя сохраняется в переменную name, а также в словарь self.name_login_password в качестве ключа к связке "логин: пароль"
         name = self.pass_gen.lineEdit.text()
         self.name_login_password = {name: self.login_password}
         
@@ -94,7 +94,7 @@ class App(QWidget):
         self.pass_gen.label.setText('Пароль сохранен в файл')
 
     def set_login(self):
-        # Метод, сохраняющий введеный логин в словарь "логин: пароль"
+        # Метод, сохраняющий введеный логин в переменную self.login и в словарь self.login_password "логин: пароль" в качестве ключа к паролю
         self.login = self.pass_gen.lineEdit.text()
         self.login_password = {self.login: self.password}
         self.pass_gen.label.setText('Чтобы сохранить пароль, введите его имя и нажмите SAVE')
@@ -116,7 +116,7 @@ class App(QWidget):
 
     def generate(self):
         # Метод, генерирующий пароль учитывая включенные кнопки
-        symbols_to_generate = ''  # строка, содержащая все символы из которых будет генерироваться пароль (по умолчанию пустая строка)
+        symbols_to_generate = ''  # переменная, которые содержит все символы из которых будет генерироваться пароль (по умолчанию пустая строка)
 
         # Проверка включенных кнопок для выбора символов из которых будет генерироваться пароль
         if self.pass_gen.btn_123.isChecked():
@@ -134,22 +134,23 @@ class App(QWidget):
                     temp_sym_to_gen += c
             symbols_to_generate = temp_sym_to_gen
 
-        # Если строка, содержащая символы для генерации пароля не пустая, то пароль генерируется
+        # Если переменная, содержащая символы для генерации пароля не пустая, то пароль генерируется
         if symbols_to_generate:
             self.password = ''
             for i in range(self.num):  # Генерируется пароль из заданного количества символов
                 self.password += choice(symbols_to_generate)
 
             # Проверка включенных кнопок для обязательных символов (+), а также наличие обязательных символов в сгенерированном пароле
-            if self.pass_gen.btn_add_123.isChecked():
+            if self.pass_gen.btn_add_123.isChecked():  # Для кнопки "123"
                 temp = False
                 for c in self.password:
                     if c in self.digits:
                         temp = True
                         break
-                if not temp:
+                if not temp:  # Если обязательных символов в пароле нет, то он (обязательный символ) добавляется в конец сгенерированного пароля, удаляя первый символ.
                     self.password = self.password[1:] + str(randrange(2, 9))
-            if self.pass_gen.btn_add_ABC.isChecked():
+                    
+            if self.pass_gen.btn_add_ABC.isChecked():  # Для кнопки "ABC"
                 temp = False
                 for c in self.password:
                     if c in self.alpha_upper:
@@ -157,7 +158,8 @@ class App(QWidget):
                         break
                 if not temp:
                     self.password = self.password[1:] + choice('ABCDEFGHJKLMNPRSTUVWXYZ')
-            if self.pass_gen.btn_add_abc.isChecked():
+                    
+            if self.pass_gen.btn_add_abc.isChecked():  # Для кнопки "abc"
                 temp = False
                 for c in self.password:
                     if c in self.alpha_lower:
@@ -165,7 +167,8 @@ class App(QWidget):
                         break
                 if not temp:
                     self.password = self.password[1:] + choice('abcdefghijkmnopqrstuvwxyz')
-            if self.pass_gen.btn_add_symbols.isChecked():
+                    
+            if self.pass_gen.btn_add_symbols.isChecked():  # Для кнопки "symbols"
                 temp = False
                 for c in self.password:
                     if c in self.symbols:
@@ -184,7 +187,7 @@ class App(QWidget):
             win32clipboard.CloseClipboard()
 
         else:
-            self.pass_gen.label.setText('ВЫБЕРИТЕ СИМВОЛЫ!')  #  Если не нажата ниодна кнопка выбора символов для генерации пароля, то это выводиться в подсказку
+            self.pass_gen.label.setText('ВЫБЕРИТЕ СИМВОЛЫ!')  #  Если нет нажатых кнопок для выбора символов для генерации пароля, то это выводиться в подсказку
 
 
 def main():
