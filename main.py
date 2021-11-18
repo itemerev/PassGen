@@ -8,6 +8,14 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget
 
 
+def to_clipboard(data):
+    # Функция, копирующая данные в буфер обмена
+    win32clipboard.OpenClipboard()
+    win32clipboard.EmptyClipboard()
+    win32clipboard.SetClipboardText(data)
+    win32clipboard.CloseClipboard()
+
+
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -45,6 +53,10 @@ class App(QWidget):
         self.pass_gen.btn_login.clicked.connect(lambda: self.set_login())
         self.pass_gen.btn_save.clicked.connect(lambda: self.save_password())
         self.pass_gen.btn_find.clicked.connect(lambda: self.find_data())
+        self.pass_gen.btn_add_123.clicked.connect(lambda: self.check_set_123())
+        self.pass_gen.btn_add_ABC.clicked.connect(lambda: self.check_set_ABC())
+        self.pass_gen.btn_add_abc.clicked.connect(lambda: self.check_set_abc())
+        self.pass_gen.btn_add_symbols.clicked.connect(lambda: self.check_set_symbols())
 
     def find_data(self):
         # Метод, позволяющий выполнить поиск введенного значения (имя, логин или пароль) в сохраненных данных
@@ -71,7 +83,9 @@ class App(QWidget):
         
         # Если список ответов имеет хотя бы одну запись, то в строку подсказок выводиться последняя, с удалением ее из списка (при повторном клике будет выведена следующая по-порядку с конца запись, если она имеется в списке)
         if len(self.answer_list) > 0:
-            self.pass_gen.label.setText(self.answer_list.pop())
+            s = self.answer_list.pop()
+            to_clipboard(s[s.index('Пароль - ') + 9:].strip())
+            self.pass_gen.label.setText(s)
         
         # Если записей в списке ответов больше нет (или не было), то в строку подсказок выводиться информация, что запрос не найден, а поиск запрашиваемого значения обнуляется, то есть можно повторно сформировать список ответов
         else:
@@ -113,6 +127,22 @@ class App(QWidget):
                 self.pass_gen.label.setText(f'Длина пароля {self.num} символов')
         else:
             self.pass_gen.label.setText('Введите число от 3-х до 18-ти!')
+    
+        def check_set_123(self):
+        if self.pass_gen.btn_add_123.isChecked():
+            self.pass_gen.btn_123.setChecked(True)
+
+    def check_set_ABC(self):
+        if self.pass_gen.btn_add_ABC.isChecked():
+            self.pass_gen.btn_ABC.setChecked(True)
+
+    def check_set_abc(self):
+        if self.pass_gen.btn_add_abc.isChecked():
+            self.pass_gen.btn_abc.setChecked(True)
+
+    def check_set_symbols(self):
+        if self.pass_gen.btn_add_symbols.isChecked():
+            self.pass_gen.btn_symbols.setChecked(True)
 
     def generate(self):
         # Метод, генерирующий пароль учитывая включенные кнопки
@@ -181,10 +211,7 @@ class App(QWidget):
             self.pass_gen.label.setText(f'Чтобы задать логин для {self.password}, введите логин и нажмите LOGIN')
 
             # Копирование сгенерированного пароля в буфер обмена
-            win32clipboard.OpenClipboard()
-            win32clipboard.EmptyClipboard()
-            win32clipboard.SetClipboardText(self.password)
-            win32clipboard.CloseClipboard()
+            to_clipboard(self.password)
 
         else:
             self.pass_gen.label.setText('ВЫБЕРИТЕ СИМВОЛЫ!')  #  Если нет нажатых кнопок для выбора символов для генерации пароля, то это выводиться в подсказку
