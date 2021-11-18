@@ -492,6 +492,8 @@
     <property name="font">
      <font>
       <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -501,13 +503,13 @@
      <string>Укажите длину пароля и нажмите ENT</string>
     </property>
     <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     <set>Qt::AlignCenter</set>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
     </property>
     <property name="margin">
-     <number>5</number>
+     <number>2</number>
     </property>
    </widget>
   </widget>
