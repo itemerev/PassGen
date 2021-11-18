@@ -105,8 +105,7 @@ class App(QWidget):
         # Сохранение словаря "имя: логин: пароль" в файл
         with open('results.txt', 'a', encoding='utf-8') as save_file:
             print(f'{name}:', file=save_file)
-            print(f'    Логин - {self.login}: Пароль - {self.name_login_password.get(name).get(self.login)}',
-                  file=save_file)
+            print(f'    Логин - {self.login}: Пароль - {self.name_login_password.get(name).get(self.login)}', file=save_file)
             print('', file=save_file)
 
         self.pass_gen.label.setText('Пароль сохранен в файл')
@@ -132,9 +131,9 @@ class App(QWidget):
         else:
             self.pass_gen.label.setText('Введите число от 3-х до 18-ти!')
 
-        def check_set_123(self):
-            if self.pass_gen.btn_add_123.isChecked():
-                self.pass_gen.btn_123.setChecked(True)
+    def check_set_123(self):
+        if self.pass_gen.btn_add_123.isChecked():
+            self.pass_gen.btn_123.setChecked(True)
 
     def check_set_ABC(self):
         if self.pass_gen.btn_add_ABC.isChecked():
