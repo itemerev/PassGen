@@ -18,8 +18,12 @@ def to_clipboard(data):
 
 
 class PasswordsLibrary:
+    library = {}
     def __init__(self):
-        self.library = {}
+        with open('results.txt', encoding='utf-8') as results:
+            for row in results:
+                if row and row[:5] != '    ':
+                    self.library[row[:-1]] = []
 
 
 class App(QWidget):
@@ -39,15 +43,30 @@ class App(QWidget):
         self.login = ''  # Сохраненный логин (по-умолчанию пустая строка)
         self.login_password = {}  # Сохраненный словарь - связка логин: пароль (по-умолчанию пустой словарь)
         self.name_login_password = {}  # Сохраненный словарь - связка имя: логин: пароль (по-умолчанию пустой словарь)
+        self.library = {}
 
         self.pass_gen = uic.loadUi('PassGen_Des01.ui')  # Импорт графического интерфейса
 
         self.start()
         self.click()
 
+    def refresh(self):
+        # Метод, который создает библиотеку из файла result.txt
+        with open('results.txt', encoding='utf-8') as results:
+            name = ''
+            for row in results:
+                if 'Логин' not in row:
+                    name = row[:-2]
+                    self.library[name] = []
+                else:
+                    i = row.index(':')
+                    self.library[name].append({row[12:i]:row[i + 11:len(row)-1]})
+        print(self.library)
+
     def start(self):
         # Запускает (показывает) окно приложения
         self.pass_gen.show()
+        self.refresh()
 
     def click(self):
         # Вызывает действие при клике на кнопку
@@ -78,7 +97,6 @@ class App(QWidget):
             print(f'{name}:', file=save_file)
             print(f'    Логин - {self.login}: Пароль - {self.name_login_password.get(name).get(self.login)}',
                   file=save_file)
-            print('', file=save_file)
 
         self.pass_gen.label.setText('Пароль сохранен в файл')
 
