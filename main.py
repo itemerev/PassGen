@@ -3,6 +3,7 @@
 
 import sys
 import win32clipboard
+import os
 from random import choice, randrange
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget
@@ -16,6 +17,11 @@ def to_clipboard(data):
     win32clipboard.CloseClipboard()
 
 
+class PasswordsLibrary:
+    def __init__(self):
+        self.library = {}
+
+
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -26,9 +32,6 @@ class App(QWidget):
         self.alpha_lower = 'abcdefghijklmnopqrstuvwxyz'
         self.symbols = '~!@#$%^&*(()+-<>{}[]№?'
         self.special = 'IlO01'
-
-        self.data = ''  # Переменная, определяющая будет ли создаваться список ответов при поиске сохраненного значения
-        self.answer_list = []  # Список ответов, найденных при поиске сохраненного значения
 
         # Переменные, необходимые для генерации пароля:
         self.num = 3  # Длина пароля в символах
@@ -52,52 +55,15 @@ class App(QWidget):
         self.pass_gen.btn_enter.clicked.connect(lambda: self.set_num())
         self.pass_gen.btn_login.clicked.connect(lambda: self.set_login())
         self.pass_gen.btn_save.clicked.connect(lambda: self.save_password())
-        self.pass_gen.btn_find.clicked.connect(lambda: self.find_data())
+        self.pass_gen.btn_open.clicked.connect(lambda: self.open_data())
         self.pass_gen.btn_add_123.clicked.connect(lambda: self.check_set_123())
         self.pass_gen.btn_add_ABC.clicked.connect(lambda: self.check_set_ABC())
         self.pass_gen.btn_add_abc.clicked.connect(lambda: self.check_set_abc())
         self.pass_gen.btn_add_symbols.clicked.connect(lambda: self.check_set_symbols())
 
-    def find_data(self):
-        # Метод, позволяющий выполнить поиск введенного значения (имя, логин или пароль) в сохраненных данных
-
-        request = self.pass_gen.lineEdit.text()  # Сохранение введенного запроса в переменную
-
-        # Если поиск запрашиваемого значения выполняется в первый раз, то есть переменная self.data не ссылается на
-        # текущий запрос, то все найденные результаты сохраняются в список ответов.
-        if self.data != request:
-            with open('results.txt', 'r', encoding='utf-8') as read_file:
-                name_password = ''
-                for row in read_file:
-                    if row == '':
-                        continue
-                    elif '    ' not in row:
-                        name_password = row[:-2]
-                        if request in row:
-                            self.answer_list.append(
-                                f'Значение "{request}" найдено, как имя для записи: {read_file.readline().strip()}')
-                    else:
-                        if request in row[12:13 + len(request)]:
-                            self.answer_list.append(
-                                f'Значение "{request}" найдено, как логин для записи {name_password}: {row[4:]}')
-                        elif request in row[22 + len(request):]:
-                            self.answer_list.append(
-                                f'Значение "{request}" найдено, как пароль для записи {name_password}: {row[4:]}')
-            self.data = self.pass_gen.lineEdit.text()
-
-        # Если список ответов имеет хотя бы одну запись, то в строку подсказок выводиться последняя, с удалением ее
-        # из списка (при повторном клике будет выведена следующая по-порядку с конца запись, если она имеется в списке)
-        if len(self.answer_list) > 0:
-            s = self.answer_list.pop()
-            to_clipboard(s[s.index('Пароль - ') + 9:].strip())
-            self.pass_gen.label.setText(s)
-
-        # Если записей в списке ответов больше нет (или не было), то в строку подсказок выводиться информация,
-        # что запрос не найден, а поиск запрашиваемого значения обнуляется, то есть можно повторно сформировать
-        # список ответов
-        else:
-            self.pass_gen.label.setText(f'Значение "{request}" не найдено в сохранённых паролях!')
-            self.data = ''
+    def open_data(self):
+        # Метод, который открывает результирующий файл
+        os.startfile('results.txt')
 
     def save_password(self):
         # Метод, сохраняющий под указанным имененем сгенерированный пароль вместе с логином в файл

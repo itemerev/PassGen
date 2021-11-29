@@ -263,7 +263,7 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="btn_find">
+   <widget class="QPushButton" name="btn_open">
     <property name="geometry">
      <rect>
       <x>250</x>
@@ -288,7 +288,7 @@
 }</string>
     </property>
     <property name="text">
-     <string>FIND</string>
+     <string>OPEN</string>
     </property>
     <property name="checkable">
      <bool>false</bool>
