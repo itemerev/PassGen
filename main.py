@@ -50,6 +50,9 @@ class App(QWidget):
         self.start()
         self.click()
 
+    def __del__(self):
+        pass
+
     def refresh(self):
         # Метод, который создает библиотеку из файла result.txt
         with open('results.txt', encoding='utf-8') as results:
@@ -79,6 +82,10 @@ class App(QWidget):
         self.pass_gen.btn_add_ABC.clicked.connect(lambda: self.check_set_ABC())
         self.pass_gen.btn_add_abc.clicked.connect(lambda: self.check_set_abc())
         self.pass_gen.btn_add_symbols.clicked.connect(lambda: self.check_set_symbols())
+        self.pass_gen.btn_123.clicked.connect(lambda: self.check_set_add_123())
+        self.pass_gen.btn_ABC.clicked.connect(lambda: self.check_set_add_ABC())
+        self.pass_gen.btn_abc.clicked.connect(lambda: self.check_set_add_abc())
+        self.pass_gen.btn_symbols.clicked.connect(lambda: self.check_set_add_symbols())
 
     def open_data(self):
         # Метод, который открывает результирующий файл
@@ -122,6 +129,7 @@ class App(QWidget):
         else:
             self.pass_gen.label.setText('Введите число от 3-х до 18-ти!')
 
+    # Функции, проверяющие состояние кнопок (если включена кнопка обязательного включения, то и кнопка включения тоже включена и наоборот)
     def check_set_123(self):
         if self.pass_gen.btn_add_123.isChecked():
             self.pass_gen.btn_123.setChecked(True)
@@ -137,6 +145,22 @@ class App(QWidget):
     def check_set_symbols(self):
         if self.pass_gen.btn_add_symbols.isChecked():
             self.pass_gen.btn_symbols.setChecked(True)
+
+    def check_set_add_123(self):
+        if not self.pass_gen.btn_123.isChecked():
+            self.pass_gen.btn_add_123.setChecked(False)
+
+    def check_set_add_ABC(self):
+        if not self.pass_gen.btn_ABC.isChecked():
+            self.pass_gen.btn_add_ABC.setChecked(False)
+
+    def check_set_add_abc(self):
+        if not self.pass_gen.btn_abc.isChecked():
+            self.pass_gen.btn_add_abc.setChecked(False)
+
+    def check_set_add_symbols(self):
+        if not self.pass_gen.btn_symbols.isChecked():
+            self.pass_gen.btn_add_symbols.setChecked(False)
 
     def generate(self):
         # Метод, генерирующий пароль учитывая включенные кнопки
