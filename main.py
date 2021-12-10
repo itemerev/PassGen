@@ -17,15 +17,6 @@ def to_clipboard(data):
     win32clipboard.CloseClipboard()
 
 
-class PasswordsLibrary:
-    library = {}
-    def __init__(self):
-        with open('results.txt', encoding='utf-8') as results:
-            for row in results:
-                if row and row[:5] != '    ':
-                    self.library[row[:-1]] = []
-
-
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -37,33 +28,39 @@ class App(QWidget):
         self.symbols = '~!@#$%^&*(()+-<>{}[]№?'
         self.special = 'IlO01'
 
-        # Переменные, необходимые для генерации пароля:
+        # Переменные, необходимые для генерации сохранения пароля:
         self.num = 3  # Длина пароля в символах
         self.password = ''  # Сгенерированный пароль (по-умолчанию пустая строка)
         self.login = ''  # Сохраненный логин (по-умолчанию пустая строка)
-        self.login_password = {}  # Сохраненный словарь - связка логин: пароль (по-умолчанию пустой словарь)
-        self.name_login_password = {}  # Сохраненный словарь - связка имя: логин: пароль (по-умолчанию пустой словарь)
-        self.library = {}
+        self.name = ''  # Сохраненное имя для пароля (по-умолчанию пустая строка)
+        self.library = {}  # Библиотека всех сохраненных ранее паролей (обновиться автоматически при запуске программы)
 
         self.pass_gen = uic.loadUi('PassGen_Des01.ui')  # Импорт графического интерфейса
 
-        self.start()
-        self.click()
+        self.start()  # Запускает метод start()
+        self.click()  # Запускает метод click()
 
-    def __del__(self):
-        pass
+    def file_update(self):
+        # Метод, который обновляет файл с сохраненными паролями
+        with open('results.txt', 'w', encoding='utf-8') as results:
+            for name in self.library:
+                print(name + ':', file=results)
+                for log in self.library[name]:
+                    for pwd in log:
+                        print(f'    Логин: {pwd}, Пароль: {log[pwd]}', file=results)
+                print('---', file=results)
 
     def refresh(self):
         # Метод, который создает библиотеку из файла result.txt
         with open('results.txt', encoding='utf-8') as results:
             name = ''
             for row in results:
-                if 'Логин' not in row:
+                if 'Логин' not in row and '---' not in row:
                     name = row[:-2]
                     self.library[name] = []
-                else:
-                    i = row.index(':')
-                    self.library[name].append({row[12:i]:row[i + 11:len(row)-1]})
+                elif '---' not in row:
+                    i = row.index(',')
+                    self.library[name].append({row[11:i]:row[i + 10:len(row)-1]})
         print(self.library)
 
     def start(self):
@@ -93,25 +90,16 @@ class App(QWidget):
 
     def save_password(self):
         # Метод, сохраняющий под указанным имененем сгенерированный пароль вместе с логином в файл
-
-        # Введенное имя сохраняется в переменную name, а также в словарь self.name_login_password в качестве ключа к
-        # связке "логин: пароль"
-        name = self.pass_gen.lineEdit.text()
-        self.name_login_password = {name: self.login_password}
-
-        # Сохранение словаря "имя: логин: пароль" в файл
-        with open('results.txt', 'a', encoding='utf-8') as save_file:
-            print(f'{name}:', file=save_file)
-            print(f'    Логин - {self.login}: Пароль - {self.name_login_password.get(name).get(self.login)}',
-                  file=save_file)
-
+        self.name = self.pass_gen.lineEdit.text()
+        # Сохранение пароля в библиотеку паролей
+        self.library[self.name] = self.library.get(self.name, []) + [{self.login: self.password}]
+        self.file_update()  # Перезапись файла
+        self.refresh()  # Обновление библиотеки
         self.pass_gen.label.setText('Пароль сохранен в файл')
 
     def set_login(self):
-        # Метод, сохраняющий введеный логин в переменную self.login и в словарь self.login_password "логин: пароль" в
-        # качестве ключа к паролю
+        # Метод, сохраняющий введеный логин в переменную self.login
         self.login = self.pass_gen.lineEdit.text()
-        self.login_password = {self.login: self.password}
         self.pass_gen.label.setText('Чтобы сохранить пароль, введите его имя и нажмите SAVE')
 
     def set_num(self):
@@ -129,7 +117,8 @@ class App(QWidget):
         else:
             self.pass_gen.label.setText('Введите число от 3-х до 18-ти!')
 
-    # Функции, проверяющие состояние кнопок (если включена кнопка обязательного включения, то и кнопка включения тоже включена и наоборот)
+    # Функции, проверяющие состояние кнопок (если включена кнопка обязательного включения, то и кнопка выбора
+    # символов будет тоже включена и наоборот)
     def check_set_123(self):
         if self.pass_gen.btn_add_123.isChecked():
             self.pass_gen.btn_123.setChecked(True)
