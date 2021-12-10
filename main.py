@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import win32clipboard
-import os
+from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardText, CloseClipboard
+from os import startfile
 from random import choice, randrange
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget
@@ -11,10 +11,10 @@ from PyQt5.QtWidgets import QApplication, QWidget
 
 def to_clipboard(data):
     # Функция, копирующая данные в буфер обмена
-    win32clipboard.OpenClipboard()
-    win32clipboard.EmptyClipboard()
-    win32clipboard.SetClipboardText(data)
-    win32clipboard.CloseClipboard()
+    OpenClipboard()
+    EmptyClipboard()
+    SetClipboardText(data)
+    CloseClipboard()
 
 
 class App(QWidget):
@@ -86,7 +86,7 @@ class App(QWidget):
 
     def open_data(self):
         # Метод, который открывает результирующий файл
-        os.startfile('results.txt')
+        startfile('results.txt')
 
     def save_password(self):
         # Метод, сохраняющий под указанным имененем сгенерированный пароль вместе с логином в файл
