@@ -1,6 +1,3 @@
-#!/urs/bin/python3
-# -*- coding: utf-8 -*-
-
 import sys
 from win32clipboard import OpenClipboard, EmptyClipboard, SetClipboardText, CloseClipboard
 from os import startfile
@@ -232,11 +229,7 @@ class App(QWidget):
                 'ВЫБЕРИТЕ СИМВОЛЫ!')
 
 
-def main():
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
     app.exec_()
-
-
-if __name__ == '__main__':
-    main()
